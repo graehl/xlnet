@@ -27,6 +27,9 @@ def configure_tpu(FLAGS):
   session_config = tf.ConfigProto(allow_soft_placement=True)
   # Uncomment the following line if you hope to monitor GPU RAM growth
   # session_config.gpu_options.allow_growth = True
+  if FLAGS.jit:
+    session_config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+
 
   if FLAGS.use_tpu:
     strategy = None

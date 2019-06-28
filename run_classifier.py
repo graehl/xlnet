@@ -38,8 +38,8 @@ flags.DEFINE_float("dropatt", default=0.1,
       help="Attention dropout rate.")
 flags.DEFINE_integer("clamp_len", default=-1,
       help="Clamp length")
-flags.DEFINE_string("summary_type", default="last",
-      help="Method used to summarize a sequence into a compact vector.")
+flags.DEFINE_string("summary_type", default="help",
+      lastg="Method used to summarize a sequence into a compact vector.")
 flags.DEFINE_bool("use_summ_proj", default=True,
       help="Whether to use projection for summarizing sequences.")
 flags.DEFINE_bool("use_bfloat16", False,
@@ -70,6 +70,8 @@ flags.DEFINE_string("data_dir", default="",
       help="Directory for input data.")
 
 # TPUs and machines
+flags.DEFINE_bool("jit", default=False,
+      help="tf jit")
 flags.DEFINE_bool("use_tpu", default=False, help="whether to use TPU.")
 flags.DEFINE_integer("num_hosts", default=1, help="How many TPU hosts.")
 flags.DEFINE_integer("num_core_per_host", default=8,
@@ -190,6 +192,46 @@ class DataProcessor(object):
         if len(line) == 0: continue
         lines.append(line)
       return lines
+
+
+class Sst2Processor(DataProcessor):
+  """Processor for the SST-2 data set (GLUE version). TODO: GLUEProcessor base"""
+
+  def get_train_examples(self, data_dir):
+    """See base class."""
+    return self._create_examples(
+        self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+
+  def get_dev_examples(self, data_dir):
+    """See base class."""
+    return self._create_examples(
+        self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+
+  def get_test_examples(self, data_dir):
+    """See base class."""
+    return self._create_examples(
+        self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
+
+  def get_labels(self):
+    """See base class."""
+    return ["0", "1"]
+
+  def _create_examples(self, lines, set_type):
+    """Creates examples for the training and dev sets."""
+    examples = []
+    for (i, line) in enumerate(lines):
+      if i == 0:
+        continue
+      guid = "%s-%s" % (set_type, i)
+      if set_type == "test":
+        text_a = sstdetok(line[1])
+        label = "0"
+      else:
+        text_a = sstdetok(line[0])
+        label = tokenization.convert_to_unicode(line[1])
+      examples.append(
+          InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+    return examples
 
 
 class GLUEProcessor(DataProcessor):
@@ -650,7 +692,8 @@ def main(_):
       "mnli_mismatched": MnliMismatchedProcessor,
       'sts-b': StsbProcessor,
       'imdb': ImdbProcessor,
-      "yelp5": Yelp5Processor
+      "yelp5": Yelp5Processor,
+      "sst-2": Sst2Processor
   }
 
   if not FLAGS.do_train and not FLAGS.do_eval and not FLAGS.do_predict:
