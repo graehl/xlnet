@@ -193,6 +193,15 @@ class DataProcessor(object):
         lines.append(line)
       return lines
 
+import nltk
+nltk.download('perluniprops')
+from nltk.tokenize.moses import MosesDetokenizer
+
+detokenizer = MosesDetokenizer()
+
+def sstdetok(text):
+  return detokenizer.detokenize([tokenization.convert_to_unicode(x) for x in text.split()], return_str=True)
+
 
 class Sst2Processor(DataProcessor):
   """Processor for the SST-2 data set (GLUE version). TODO: GLUEProcessor base"""
