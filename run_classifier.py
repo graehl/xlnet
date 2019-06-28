@@ -199,8 +199,29 @@ from nltk.tokenize.moses import MosesDetokenizer
 
 detokenizer = MosesDetokenizer()
 
+import six
+def convert_to_unicode(text):
+  """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
+  if six.PY3:
+    if isinstance(text, str):
+      return text
+    elif isinstance(text, bytes):
+      return text.decode("utf-8", "ignore")
+    else:
+      raise ValueError("Unsupported string type: %s" % (type(text)))
+  elif six.PY2:
+    if isinstance(text, str):
+      return text.decode("utf-8", "ignore")
+    elif isinstance(text, unicode):
+      return text
+    else:
+      raise ValueError("Unsupported string type: %s" % (type(text)))
+  else:
+    raise ValueError("Not running on Python2 or Python 3?")
+
+
 def sstdetok(text):
-  return detokenizer.detokenize([tokenization.convert_to_unicode(x) for x in text.split()], return_str=True)
+  return detokenizer.detokenize([convert_to_unicode(x) for x in text.split()], return_str=True)
 
 
 class Sst2Processor(DataProcessor):
@@ -237,7 +258,7 @@ class Sst2Processor(DataProcessor):
         label = "0"
       else:
         text_a = sstdetok(line[0])
-        label = tokenization.convert_to_unicode(line[1])
+        label = convert_to_unicode(line[1])
       examples.append(
           InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
     return examples
