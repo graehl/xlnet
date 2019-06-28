@@ -39,7 +39,7 @@ flags.DEFINE_float("dropatt", default=0.1,
 flags.DEFINE_integer("clamp_len", default=-1,
       help="Clamp length")
 flags.DEFINE_string("summary_type", default="help",
-      lastg="Method used to summarize a sequence into a compact vector.")
+      help="Method used to summarize a sequence into a compact vector.")
 flags.DEFINE_bool("use_summ_proj", default=True,
       help="Whether to use projection for summarizing sequences.")
 flags.DEFINE_bool("use_bfloat16", False,
