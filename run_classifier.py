@@ -250,17 +250,22 @@ class Sst2Processor(DataProcessor):
     """Creates examples for the training and dev sets."""
     examples = []
     for (i, line) in enumerate(lines):
-      if i == 0:
-        continue
-      guid = "%s-%s" % (set_type, i)
-      if set_type == "test":
-        text_a = sstdetok(line[1])
-        label = "0"
+      if len(line) == 3:
+        text_a = line[2]
+        label = float(line[1])
+        label = "0" if label <= 0 
+        label = str(label)
       else:
-        text_a = sstdetok(line[0])
-        label = convert_to_unicode(line[1])
-      examples.append(
-          InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+        if i == 0:
+          continue
+        guid = "%s-%s" % (set_type, i)
+        if set_type == "test":
+          text_a = sstdetok(line[1])
+          label = "0"
+        else:
+          text_a = sstdetok(line[0])
+          label = convert_to_unicode(line[1])
+      examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
     return examples
 
 
