@@ -253,7 +253,7 @@ class Sst2Processor(DataProcessor):
       if len(line) == 3:
         text_a = line[2]
         label = float(line[1])
-        label = "0" if label <= 0 
+        if label <= 0.0: label = 0 
         label = str(label)
       else:
         if i == 0:
