@@ -255,7 +255,7 @@ class Sst2Processor(DataProcessor):
         text_a = line[2]
         label = float(line[1])
         if label <= 0.0: label = 0 
-        label = str(label)
+        label = str(int(label))
       else:
         if i == 0:
           continue
